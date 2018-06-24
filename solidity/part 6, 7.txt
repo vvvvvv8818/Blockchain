@@ -1,0 +1,78 @@
+Part6. DApp 확장하기
+
+1. 구조체(Structs)
+struct Person {
+    string name;
+    uint age;
+    address wallet;
+}
+
+function birthday() {
+    Person p = Person("James", 26, 0x7Df34...);
+    p.age += 1;
+}
+
+
+2. 맵핑(Mappings)
+- Key-Value가 쌍을 이루는 자료 구조.
+- mapping 키워드로 선언
+- 선언 시, Key 타입과 value 타입을 지정해주어야 함.
+- key로 value를 불러올 수 있음
+
+mapping (address => uint) public balances;
+
+function open(uint newBalance) public {
+    balances[msg.sender] = newBalance;
+}
+
+
+3. Event
+- 트랜잭션에 기록하고 싶은 사항이 있을 때 사용
+- event 키워드로 선언
+- 이벤트 안에 명시된 데이터를 트랜젝션에 로깅
+
+event BuySomethings(
+    address indexed _buyer,
+    uint256 _value
+);
+
+function buy() payable public {
+    seller.transfer(msg.value);    
+    // 이벤트 호출
+    BuySomethings(msg.sender, msg.value);
+}
+
+
+Part7. 요구사항 구현하기
+
+1. 솔리디티의 오류 처리(Error Handling)
+require(bool 조건)
+- 조건 만족 ㄴㄴ => 오류 발생시킴
+
+function half(uint x) {
+    require(x % 2 == 0);
+}
+
+* 솔리디티에는 catch 매커니즘이 없다. 
+오류 발생하면 진행 중인 스마트 계약은 즉시 종료된다.
+모든 상태는 호출되기 전으로 돌아간다.
+BUT! 계약을 호출할 때 소비한 가스는 반환되지 않는다.
+
+
+2. 함수 제어자 (Function Modifiers)
+- 커스텀 할 수 있는 제어자
+- modifier 키워드로 선언
+- 함수 호출할 때 명시해주면 실행 시 오류를 처리할 수 있음
+- 모든 실행 조건을 만족한 경우를 언더바(_)로 표시
+- owner만 가격을 수정하도록 허용하는 함수 제어자의 예
+modifier onlyOwner {
+    require(msg.sender == owner);
+    _;
+}
+
+function changePrice(uint _price) public onlyOwner {
+    price = _price;
+}
+
+
+Part8. 부록 : 로컬에서 개발 환경 세팅하기
